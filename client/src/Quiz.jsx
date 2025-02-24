@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "react-circular-progressbar/dist/styles.css";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
@@ -12,6 +12,11 @@ const Quiz = () => {
   const [submitted, setSubmitted] = useState(false);
   const [popup, setPopup] = useState(null);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [isOptionDisabled, setIsOptionDisabled] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(10);
+
+  const questionAnsweredRef = useRef(false);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     axios
@@ -20,25 +25,77 @@ const Quiz = () => {
       .catch((err) => console.error("Error fetching questions:", err));
   }, []);
 
-  const handleSelect = (option) => {
-    const isCorrect = option === questions[currentQuestionIndex].correctAnswer;
-    setAnswers({ ...answers, [currentQuestionIndex]: option });
+  useEffect(() => {
+    if (quizStarted && !submitted && questions.length > 0) {
+      setTimeLeft(10);
+      questionAnsweredRef.current = false;
+      setIsOptionDisabled(false);
 
-    if (isCorrect) {
-      setScore((prevScore) => prevScore + 1);
-      setPopup({ message: "Correct! 😊", correct: true });
-    } else {
-      setPopup({ message: "Wrong! ☹️", correct: false });
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timerRef.current);
+            
+            if (!questionAnsweredRef.current) {
+              handleTimeout();
+            }
+
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timerRef.current);
     }
+  }, [currentQuestionIndex, quizStarted, submitted, questions]);
+
+  const handleTimeout = () => {
+    setPopup({ message: "Time's Up!", correct: false });
+    setIsOptionDisabled(true);
+    questionAnsweredRef.current = true;
+
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQuestionIndex]: "Time's Up",
+    }));
 
     setTimeout(() => {
       setPopup(null);
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex((prev) => prev + 1);
-      } else {
-        setSubmitted(true);
-      }
+      moveToNextQuestion();
     }, 1500);
+  };
+
+  const handleSelect = (option) => {
+    if (isOptionDisabled || questionAnsweredRef.current) return;
+
+    questionAnsweredRef.current = true;
+    setIsOptionDisabled(true);
+    clearInterval(timerRef.current);
+
+    const isCorrect = option === questions[currentQuestionIndex].correctAnswer;
+    setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: option }));
+
+    if (isCorrect) {
+      setScore((prevScore) => prevScore + 1);
+    }
+
+    setPopup({ message: isCorrect ? "Correct! 😊" : "Wrong! ☹️", correct: isCorrect });
+
+    setTimeout(() => {
+      setPopup(null);
+      moveToNextQuestion();
+    }, 1500);
+  };
+
+  const moveToNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    } else {
+      setTimeout(() => {
+        setSubmitted(true);
+      }, 1000);
+    }
   };
 
   const restartQuiz = () => {
@@ -47,19 +104,27 @@ const Quiz = () => {
     setScore(0);
     setSubmitted(false);
     setQuizStarted(false);
+    setTimeLeft(10);
+    questionAnsweredRef.current = false;
   };
 
   const getScoreColor = (score) => {
-    if (score === 10) return "#4CAF50";
-    if (score >= 7) return "#2196F3";
-    if (score >= 4) return "#FFC107";
+    if (score === questions.length) return "#4CAF50";
+    if (score >= Math.ceil(questions.length * 0.7)) return "#2196F3";
+    if (score >= Math.ceil(questions.length * 0.4)) return "#FFC107";
+    return "#FF5252";
+  };
+
+  const getTimerColor = () => {
+    if (timeLeft > 7) return "#2196F3";
+    if (timeLeft > 4) return "#FFC107";
     return "#FF5252";
   };
 
   const getPerformanceMessage = () => {
-    if (score === 10) return "Legendary! 🏆";
-    if (score >= 7) return "Pro Level! 🎯";
-    if (score >= 4) return "Rising Star! 🌟";
+    if (score === questions.length) return "Legendary! 🏆";
+    if (score >= Math.ceil(questions.length * 0.7)) return "Pro Level! 🎯";
+    if (score >= Math.ceil(questions.length * 0.4)) return "Rising Star! 🌟";
     return "Level Up Needed! ⏳";
   };
 
@@ -77,9 +142,23 @@ const Quiz = () => {
             {questions.length > 0 && (
               <>
                 <h2 className="question">{questions[currentQuestionIndex].question}</h2>
+
+                <div className="timer-container">
+                  <CircularProgressbar
+                    value={(timeLeft / 10) * 100}
+                    text={`${timeLeft}s`}
+                    styles={buildStyles({
+                      textSize: "20px",
+                      pathColor: getTimerColor(),
+                      textColor: getTimerColor(),
+                      trailColor: "#ddd",
+                    })}
+                  />
+                </div>
+
                 <div className="options-container">
                   {questions[currentQuestionIndex].options.map((opt, i) => (
-                    <button key={i} onClick={() => handleSelect(opt)}>
+                    <button key={i} onClick={() => handleSelect(opt)} disabled={isOptionDisabled}>
                       {opt}
                     </button>
                   ))}
