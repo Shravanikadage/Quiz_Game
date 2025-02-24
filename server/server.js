@@ -10,7 +10,7 @@ app.use(express.json());
 
 // CORS for Frontend
 app.use(cors({
-    origin: ["https://video-streaming-frontend-orpin.vercel.app"],
+    origin: ["https://quiz-game-client-theta.vercel.app"],
     methods: ["POST", "GET"],
     credentials: true
 }));
