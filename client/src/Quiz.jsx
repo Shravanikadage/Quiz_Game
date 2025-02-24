@@ -15,7 +15,7 @@ const Quiz = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/questions")
+      .get("https://quiz-game-server.vercel.app/api/questions")
       .then((res) => setQuestions(res.data))
       .catch((err) => console.error("Error fetching questions:", err));
   }, []);
