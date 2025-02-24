@@ -176,4 +176,10 @@ button:hover {
 .start-button:hover,
 .restart-button:hover {
     background: #0b7dda;
+}  
+
+.timer-container {
+    width: 80px;
+    height: 80px;
+    margin: 10px auto;
 }
