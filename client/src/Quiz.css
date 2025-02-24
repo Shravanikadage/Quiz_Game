@@ -1,0 +1,179 @@
+.quiz-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100vw;
+    background: linear-gradient(to bottom right, #111827, #374151);
+    color: white;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Blur the background when popup appears */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(8px);  /* Blur effect only on background */
+    background: rgba(0, 0, 0, 0.2); /* Slight dark overlay */
+    z-index: 999;  /* Below popup */
+    display: none; /* Hide when no popup */
+}
+
+/* Show overlay only when popup is active */
+.overlay.active {
+    display: block;
+}
+
+.quiz-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+    max-width: 600px;
+    width: 90%;
+}
+
+h1 {
+    font-size: 40px;
+    margin-bottom: 20px;
+}
+
+.question-card {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.question {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.options-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 8px;
+    transition: 0.3s;
+    background: rgb(234, 225, 225);
+    color: rgb(43, 41, 41);
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #2196F3;
+    color: white;
+}
+
+/* Popup styling */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    font-size: 50px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    min-height: 180px;
+    color: black;
+    z-index: 1000;  /* Above overlay */
+}
+
+/* Correct & Incorrect popup styles */
+.correct-popup {
+    background: #4CAF50;
+    color: white;
+    border: 3px solid #2E7D32;
+    box-shadow: 0px 0px 20px rgba(72, 255, 72, 0.8);
+}
+
+.incorrect-popup {
+    background: #FF5252;
+    color: white;
+    border: 3px solid #D32F2F;
+    box-shadow: 0px 0px 20px rgba(255, 72, 72, 0.8);
+}
+
+@keyframes popupBounce {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes glowEffect {
+    0% { box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5); }
+    100% { box-shadow: 0px 0px 35px rgba(255, 255, 255, 1); }
+}
+
+.result-screen {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.score-container {
+    width: 150px;
+    height: 150px;
+    margin: 20px auto;
+}
+
+.performance-message {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.start-button,
+.restart-button {
+    padding: 12px 24px;
+    font-size: 20px;
+    font-weight: bold;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+.start-button:hover,
+.restart-button:hover {
+    background: #0b7dda;
+}
